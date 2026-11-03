@@ -1,0 +1,24 @@
+# One command to run the whole stack on a Vultr VM.
+#   docker build -t sandbox-runner:latest ./sandbox   # build the sandbox image first
+#   docker compose up --build -d
+services:
+  backend:
+    build: ./backend
+    env_file: .env
+    environment:
+      # inside compose the UI is served by nginx on :8080, same origin via proxy
+      CORS_ORIGINS: "*"
+    ports:
+      - "8000:8000"
+    volumes:
+      # The orchestrator launches sandbox containers via the host Docker daemon.
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+    restart: unless-stopped

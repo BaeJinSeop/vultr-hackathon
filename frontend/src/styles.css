@@ -1,0 +1,177 @@
+:root {
+  --bg: #0b0e14;
+  --panel: #141925;
+  --panel-2: #1b2130;
+  --border: #273043;
+  --text: #e6e9ef;
+  --muted: #8b93a7;
+  --accent: #00c2a8;
+  --accent-2: #7c5cff;
+  --ok: #38d39f;
+  --bad: #ff6b6b;
+  --warn: #ffb020;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: radial-gradient(1200px 600px at 80% -10%, #1a2336 0%, var(--bg) 55%);
+  color: var(--text);
+  font-family: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+.wrap {
+  max-width: 920px;
+  margin: 0 auto;
+  padding: 32px 16px 64px;
+}
+
+header h1 {
+  font-size: 34px;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+header .zero {
+  color: var(--accent);
+  text-shadow: 0 0 18px rgba(0, 194, 168, 0.5);
+}
+.sub { color: var(--muted); margin: 6px 0 14px; }
+
+.limits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  font-size: 12px;
+}
+.limits span {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  padding: 3px 9px;
+  border-radius: 999px;
+  color: var(--muted);
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+
+.panel {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 18px;
+  margin-top: 20px;
+}
+.panel label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted);
+}
+textarea {
+  width: 100%;
+  margin-top: 8px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  padding: 12px;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-size: 13px;
+  resize: vertical;
+}
+
+.examples { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0; }
+.chip {
+  background: var(--panel-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 6px 11px;
+  border-radius: 999px;
+  font-size: 12px;
+  cursor: pointer;
+}
+.chip:hover:not(:disabled) { border-color: var(--accent); }
+.chip:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.actions { display: flex; align-items: center; gap: 14px; margin-top: 6px; }
+.run, .stop {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 20px;
+  font-weight: 600;
+  font-size: 14px;
+  cursor: pointer;
+}
+.run { background: linear-gradient(135deg, var(--accent), var(--accent-2)); color: #06121a; }
+.run:disabled { opacity: 0.4; cursor: not-allowed; }
+.stop { background: var(--bad); color: #220; }
+.statusline { color: var(--muted); font-size: 13px; }
+
+.timeline { margin-top: 26px; display: flex; flex-direction: column; gap: 16px; }
+.attempt {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--accent-2);
+  border-radius: 12px;
+  padding: 14px 16px;
+}
+.attempt-head { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; flex-wrap: wrap; }
+.badge {
+  background: var(--accent-2);
+  color: #0a0714;
+  font-weight: 700;
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+.verdict { font-size: 13px; font-family: ui-monospace, Menlo, monospace; }
+.verdict.ok { color: var(--ok); }
+.verdict.bad { color: var(--bad); }
+
+pre.code, pre.stdout, pre.stderr {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px;
+  overflow-x: auto;
+  font-size: 12.5px;
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 8px 0 0;
+}
+.io-label {
+  display: block;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+pre.stderr { border-color: rgba(255, 107, 107, 0.4); color: #ffd0d0; }
+
+.diagnosis {
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--warn);
+  background: rgba(255, 176, 32, 0.08);
+  border: 1px solid rgba(255, 176, 32, 0.25);
+  border-radius: 8px;
+  padding: 9px 12px;
+}
+
+.final {
+  border-radius: 12px;
+  padding: 16px;
+  font-weight: 600;
+  font-size: 15px;
+}
+.final.success { background: rgba(56, 211, 159, 0.12); border: 1px solid var(--ok); color: var(--ok); }
+.final.fail { background: rgba(255, 107, 107, 0.1); border: 1px solid var(--bad); color: var(--bad); }
+.final.err { background: rgba(255, 176, 32, 0.1); border: 1px solid var(--warn); color: var(--warn); }
+
+footer {
+  margin-top: 40px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 12px;
+}
