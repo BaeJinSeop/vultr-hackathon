@@ -6,6 +6,7 @@ The self-healing loop.
 Each step yields an AgentEvent so the API layer can stream the whole loop to
 the UI in real time.
 """
+import asyncio
 import re
 from typing import AsyncIterator
 
@@ -63,10 +64,12 @@ def _looks_successful(result: ExecResult) -> bool:
 class SelfHealingAgent:
     def __init__(self) -> None:
         self.settings = get_settings()
-        self.sandbox = Sandbox()
 
     async def run(self, task: str, starting_code: str | None = None) -> AsyncIterator[AgentEvent]:
-        self.sandbox.ensure_image()
+        # Docker SDK calls are blocking; keep them off the event loop so one run
+        # doesn't freeze every other request and stream for up to the timeout.
+        sandbox = await asyncio.to_thread(Sandbox)
+        await asyncio.to_thread(sandbox.ensure_image)
         llm = VultrInference()
         max_attempts = self.settings.max_attempts
 
@@ -89,7 +92,7 @@ class SelfHealingAgent:
                 yield AgentEvent(type="code", attempt=attempt, code=code,
                                  message=f"Attempt {attempt}: running in sandbox.")
 
-                result = self.sandbox.run(code)
+                result = await asyncio.to_thread(sandbox.run, code)
                 yield AgentEvent(type="exec", attempt=attempt, result=result,
                                  message=_verdict_line(result))
 

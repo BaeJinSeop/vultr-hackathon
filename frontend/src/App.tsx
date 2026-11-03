@@ -100,7 +100,10 @@ export default function App() {
         }
       }, ctrl.signal);
     } catch (err: any) {
-      setFinal({ type: "error", attempt: 0, message: String(err?.message || err) });
+      // Pressing Stop aborts the fetch; that's a user action, not a failure.
+      if (err?.name !== "AbortError") {
+        setFinal({ type: "error", attempt: 0, message: String(err?.message || err) });
+      }
     } finally {
       setRunning(false);
     }

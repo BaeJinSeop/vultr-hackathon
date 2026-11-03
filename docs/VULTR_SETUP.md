@@ -40,8 +40,9 @@ docker --version && docker compose version
 
 In the Vultr console add a **Firewall Group** allowing inbound:
 - `22` (SSH)
-- `8080` (frontend)
-- `8000` (backend API — optional if you only expose via the frontend proxy)
+- `8080` (frontend — nginx also proxies `/api` to the backend)
+
+Do **not** open `8000`: the backend listens on loopback only and is reached through nginx.
 
 Attach it to the instance.
 

@@ -1,8 +1,8 @@
 # Build the React app, then serve it with nginx and proxy /api → backend:8000.
-FROM node:18-alpine AS build
+FROM node:20-alpine AS build
 WORKDIR /app
-COPY package.json ./
-RUN npm install
+COPY package.json package-lock.json ./
+RUN npm ci
 COPY . .
 RUN npm run build
 

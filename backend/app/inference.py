@@ -55,8 +55,9 @@ class VultrInference:
             )
         try:
             data = resp.json()
-            return data["choices"][0]["message"]["content"]
-        except (KeyError, IndexError, json.JSONDecodeError) as exc:
+            # Some models return content=null (e.g. on a refusal); treat as empty.
+            return data["choices"][0]["message"]["content"] or ""
+        except (KeyError, IndexError, TypeError, json.JSONDecodeError) as exc:
             raise InferenceError(
                 f"Unexpected response shape from Vultr Inference: {resp.text[:500]}"
             ) from exc

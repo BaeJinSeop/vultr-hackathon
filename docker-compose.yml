@@ -5,13 +5,13 @@ services:
   backend:
     build: ./backend
     env_file: .env
-    environment:
-      # inside compose the UI is served by nginx on :8080, same origin via proxy
-      CORS_ORIGINS: "*"
     ports:
-      - "8000:8000"
+      # Loopback only: the public entry point is nginx on :8080, which proxies
+      # /api over the compose network. Keeps the API off the open internet.
+      - "127.0.0.1:8000:8000"
     volumes:
       # The orchestrator launches sandbox containers via the host Docker daemon.
+      # NOTE: socket access is root-equivalent on the host; see docs/ARCHITECTURE.md.
       - /var/run/docker.sock:/var/run/docker.sock
     restart: unless-stopped
 

@@ -13,6 +13,6 @@ RUN useradd --create-home --uid 10001 runner
 USER runner
 WORKDIR /home/runner
 
-# The orchestrator mounts the script read-only at /work/main.py and runs it.
-# We don't bake code in; the entrypoint is supplied at `docker run` time.
+# The orchestrator passes the script as `-c <code>` at `docker run` time.
+# No code is baked in; -I ignores PYTHON* env vars and the user site dir.
 ENTRYPOINT ["python", "-I"]

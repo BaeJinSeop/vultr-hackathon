@@ -5,9 +5,12 @@ from pydantic import BaseModel, Field
 
 
 class RunRequest(BaseModel):
-    task: str = Field(..., description="Plain-English task, or code to fix.")
+    # Length caps keep a public endpoint from forwarding huge prompts to the LLM.
+    task: str = Field(..., min_length=1, max_length=8000,
+                      description="Plain-English task, or code to fix.")
     starting_code: Optional[str] = Field(
-        None, description="Optional code to start from (e.g. a broken snippet)."
+        None, max_length=32000,
+        description="Optional code to start from (e.g. a broken snippet).",
     )
 
 

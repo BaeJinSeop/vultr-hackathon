@@ -34,18 +34,36 @@ The trust boundary is explicit: **the orchestrator never executes model output**
 
 | Control | Mechanism | Defeats |
 |---|---|---|
-| No network | `network_disabled=True` | data exfiltration, SSRF, reaching the Inference key |
-| No secrets | `environment={}` | credential theft — there's nothing to steal |
+| No network | `network_mode="none"` | data exfiltration, SSRF, reaching the Inference key |
+| No secrets | env holds only `HOME`/matplotlib hints | credential theft — there's nothing to steal |
+| No host mounts | code passed as `python -I -c <code>` (≤ 64 KB) | reading/writing host files via a bind mount |
 | Memory cap | `mem_limit` + `memswap_limit` | OOM bombs eating host RAM |
 | CPU cap | `nano_cpus` | CPU starvation of the host |
 | PID cap | `pids_limit` | fork bombs |
 | Wall-clock cap | `container.wait(timeout=…)` + `kill()` | infinite loops |
-| Read-only FS | `read_only=True` + tmpfs `/tmp` | tampering, `rm -rf` on mounts |
+| Log cap | json-file `max-size=1m` | print-floods filling the host disk |
+| Read-only FS | `read_only=True` + 64 MB `noexec` tmpfs `/tmp` | tampering, `rm -rf`, dropping binaries |
 | Non-root | `user=10001` | privilege use after an interpreter escape |
 | Dropped caps | `cap_drop=["ALL"]`, `no-new-privileges` | kernel-capability abuse, setuid escalation |
-| Lifecycle | `remove(force=True)` in `finally` | persistence between tasks |
+| Lifecycle | `remove(force=True)` in `finally`; labelled leftovers purged at startup | persistence between tasks or across crashes |
+| Optional gVisor | `SANDBOX_RUNTIME=runsc` | kernel exploits (user-space kernel) |
 
 Because of all this, a task whose "solution" is `rm -rf /`, a fork bomb, or `while True: pass` simply becomes another *handled failure* that the loop reports — the host, the orchestrator, and the API key are never at risk.
+
+## Protecting the public demo
+
+- **Concurrency cap** — at most `MAX_CONCURRENT_RUNS` agent runs at once; extra requests get a "busy" error instead of spawning more containers.
+- **Per-IP rate limit** — nginx allows ~6 runs/minute per client IP on `/api/run`.
+- **Input caps** — task ≤ 8,000 chars, request body ≤ 64 KB.
+- **API not exposed** — the backend binds to `127.0.0.1:8000`; the only public port is nginx on `:8080`.
+- **Error hygiene** — clients see generic error messages; full exceptions go only to the server log.
+- **Non-blocking orchestrator** — Docker calls run in worker threads, so one long run never stalls other users' streams.
+
+## Known limitations (honest threat model)
+
+- **Docker socket = host root.** The orchestrator needs `/var/run/docker.sock` to launch sandboxes, which is root-equivalent on the VM. The trust boundary is therefore *the orchestrator's own code*: it never executes model output and only creates containers with the fixed hardened config above. Stronger options: run sandboxes under gVisor (`SANDBOX_RUNTIME=runsc`), or move execution to a separate throwaway Vultr instance per task via the Vultr API.
+- **Prompt injection from sandbox output.** Sandboxed code controls its own stdout/stderr, which is fed back to the model during healing. A hostile script can steer the model's next patch — but that patch also runs in the sandbox, and no secrets are in any prompt, so the blast radius stays inside the container.
+- **Artifacts stay in the sandbox.** Files written to `/tmp` (e.g. charts) are destroyed with the container; returning them to the UI is a planned extension.
 
 ## Data flow for one request
 

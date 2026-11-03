@@ -20,8 +20,8 @@ An AI agent that **writes code, runs it in an isolated Vultr sandbox, reads the 
 |---|---|
 | **Process isolation** | Each run is a separate Docker container. The agent never executes on the host or in the API process. |
 | **Secret hygiene** | The Vultr Inference API key lives only in the orchestrator. The sandbox container has **no env vars, no network**, so it cannot exfiltrate anything. |
-| **Resource limits** | Every container: `--memory`, `--cpus`, `--pids-limit`, wall-clock timeout, `--network none`, read-only root FS, non-root user, dropped capabilities. |
-| **Lifecycle discipline** | Containers run with `--rm` and are force-killed + removed after each task. Nothing persists. |
+| **Resource limits** | Every container: `--memory`, `--cpus`, `--pids-limit`, wall-clock timeout, capped log size, `--network none`, read-only root FS, non-root user, dropped capabilities. |
+| **Lifecycle discipline** | Containers are force-killed and removed after each task, and any leftovers from a crash are purged at startup. Nothing persists. |
 
 ## Architecture
 
@@ -44,7 +44,7 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for details.
 
 ## Quick start (local)
 
-Requires Docker + Python 3.11 + Node 18.
+Requires Docker + Python 3.11+ + Node 20.
 
 ```bash
 cp .env.example .env         # put your Vultr Inference API key in .env

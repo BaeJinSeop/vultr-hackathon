@@ -1,0 +1,5 @@
+# Host node_modules (e.g. Windows esbuild binaries) must not leak into the Linux build.
+node_modules/
+dist/
+*.tsbuildinfo
+.env
